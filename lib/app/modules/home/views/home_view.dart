@@ -28,7 +28,7 @@ class HomeView extends GetView<HomeController> {
             child: const Text('Github(点个 Star 支持一下呗)'),
             onPressed: () {
               launchUrlString(
-                  'https://github.com/flutter-runtime/flutter_runtime_ide/fork');
+                  'https://github.com/flutter-runtime/flutter_runtime_ide');
             },
           )
         ],
