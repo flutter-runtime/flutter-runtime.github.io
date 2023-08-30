@@ -1,36 +1,50 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Dart
+name: Web Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches:  [ "master" ]
+
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
+
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Create Web Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.7.12"
+          cache: true
+      
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Start Web Release Build
+        run: flutter build web --release --web-renderer=html
+     
+      - name: Upload Web Build Files
+        uses: actions/upload-artifact@v2
+        with:
+          name: web-release
+          path: ./build/web
+
+  deploy:
+    name: Deploy Web Build
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+    - name: Download Web Release
+      uses: actions/download-artifact@v2
+      with:
+        name: web-release
 
-      - name: Setup Flutter SDK
-        # You may pin to the exact commit or the version.
-        # uses: flutter-actions/setup-flutter@74fc21b209e70873f3caff52c4caf25d862f2a39
-        uses: flutter-actions/setup-flutter@v2.2
-        with:
-         version: 3.7.12
-
-      - run: env
-      - run: flutter build web --web-renderer=html
-      - run: git clone git@github.com:flutter-runtime/flutterruntime.github.io.git flutterruntime
-      - run: cp $GITHUB_WORKSPACE/build/web -rf $GITHUB_WORKSPACE/flutterruntime
-      - run: cd $GITHUB_WORKSPACE/flutterruntime
-      - run: git add .
-      - run: git commit -m "更新了内容"
-      - run: git push origin main
-            
+    - name: Deploy to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./
