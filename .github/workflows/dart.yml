@@ -2,13 +2,10 @@ name: Web Release
 
 on:
   push:
-    branches:  [ "master" ]
+    branches:  [ "main" ]
 
   pull_request:
-    branches: [ "master" ]
-
-  workflow_dispatch:
-
+    branches: [ "main" ]
 jobs:
   build:
     name: Create Web Build
